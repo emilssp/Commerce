@@ -1,0 +1,49 @@
+{% extends "auctions/layout.html" %}
+
+{% block name %}
+<div class="bg-primary text-white p-2">
+  <h2>Create a new listing</h2>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 mb-5 p-2 bg-white border rounded">
+  <form action="{% url 'new_listing' %}" class="col-12" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <input type="text" name="title" class="form-control" placeholder="Title...">
+    </div>
+    <div class="form-group">
+      <textarea class="form-control" name ="description" placeholder="Write a short description" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <div class="form-group">
+        <input type="number" class="form-control " name="price" step=".01" placeholder="Place a bid">
+      </div>
+    </div>
+    <div class="form-group col-8 d-flex">
+      <div class="pl-1 pr-3 pt-1">
+        <label for="Category">Category: </label>
+      </div>
+      <select class="form-control" name="category" id="Category" placeholder="Pick a category">
+        <option value=""></option>
+      {% for category in categories %}
+        <option value="{{category.pk}}">{{category}}</option>
+      {% endfor %}
+    </select>
+    <div class="pl-3 pt-1">
+      optional*
+    </div>
+  </div>
+  <div class="form-group col-6 d-flex">
+    <label for="image">Upload an image</label>
+    <input name="image" type="file" class="form-control-file" id="image">
+
+  </div>
+  <div >
+    <input type="submit" class="btn btn-primary btn-md" style='position:absolute; bottom:5%; right:5%' value="Create">
+  </div>
+</form>
+</div>
+
+{% endblock %}

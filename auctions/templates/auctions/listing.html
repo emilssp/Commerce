@@ -1,0 +1,115 @@
+{% extends "auctions/layout.html" %}
+
+{% block name %}
+<div class="bg-primary text-white p-2">
+  <h2>{{title}}</h2>
+</div>
+{% endblock %}
+
+{% block body %}
+  <div class="container mt-5 mb-5 p-2 bg-white border rounded">
+      {% if message %}
+        <div class="alert alert-primary" role="alert">
+          {{message}}
+        </div>
+      {% endif %}
+    <div class="d-flex justify-content-center row">
+      <div class="col-md-10 ">
+        <div class="col-md-12 mt-1 d-flex align-items-center justify-content-center">
+
+          <div class="col-md-6 mt-1 ">
+            <img class="img-fluid img-responsive rounded product-image" src="{{item.image.url}}">
+          </div>
+        </div>
+          <div class="col-md-12 mt-1">
+            <h5>{{item.title}}</h5>
+
+            <div class="mt-1 mb-1 spec-1">{{item.description}}</div>
+            {% if user.is_authenticated %}
+              {% if in_watchlist %}
+                <a class="btn btn-outline-danger btn-sm mt-2" style="position:absolute; top:5%; right:5%" href="{% url 'watchlist_remove' item.pk %}" type="button">Remove from watchlist</a>
+              {% else %}
+                <a class="btn btn-outline-primary btn-sm mt-2" style="position:absolute; top:5%; right:5%" href="{% url 'watchlist_add' item.pk %}" type="button">Add to watchlist</a>
+              {% endif %}
+
+              {% if user.pk == item.creator.pk %}
+              {% if item.is_closed %}
+                <a class="btn btn-outline-primary btn-sm mt-2" style="position:absolute; top:75%; right:5%" href="{% url 'open_bidding' item.pk %}" type="button">Open</a>
+              {% else %}
+                <a class="btn btn-outline-danger btn-sm mt-2" style="position:absolute; top:75%; right:5%" href="{% url 'close_bidding' item.pk %}" type="button">Close</a>
+              {% endif %}
+
+              {% endif %}
+            {% else %}
+              <a class="btn btn-outline-primary btn-sm mt-2" href="{% url 'not_logged'  %}" style="position:absolute; top:5%; right:5%" type="button">Add to watchlist</a>
+            {% endif %}
+            <div class="d-flex flex-row">
+              <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+
+            </div>
+            </div>
+
+        <div class="d-flex flex-column mt-4">
+          {% if not item.is_closed %}
+            <form class="" action="{% url 'place_bid' item.id %}" method="post">
+              <h6 class="mr-1">Price: ${{price}}</h6>
+              {% csrf_token %}
+            <input type="number" class="form-control " name="bid" step=".01" value="" placeholder="Place a bid">
+            <div class="p-2">
+              <input type="submit" class="btn btn-primary btn-sm " value="Place a bid">
+            </div>
+          </form>
+          {% else %}
+          <p>Bidding for this objects is closed.</p>
+            {% if bidder %}
+              <p>Won by: {{bidder}}</p>
+            {%endif%}
+          {% endif %}
+        </div>
+        <div class="pt-3">
+          <h5>Details:</h5>
+          <ul>
+            <li>{{bidders}} people bidding </li>
+            {% if item.category %}
+              <li class="mt-1 mb-1 spec-1">Category: {{item.category}}</li>
+            {% endif %}
+            <li class="mt-1 mb-1 spec-1">Listed by:{% if item.creator %} {{item.creator}} {%else%} Unknown {%endif%}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+  <div class="card-body p-4">
+    <h5>Comments:</h5>
+
+    {% for comment in comments %}
+    <div class="card mb-4">
+      {% if user.pk == comment.user.pk %}
+      <a href="{% url 'delete_comment' comment.pk %}" class="btn btn-outline-danger p-0 pl-2 pr-2" style="position:absolute; top:5%; right:1%">X</a>
+      {% endif %}
+      <div class="card-body">
+        <p class="p-3">{{comment.text}}</p>
+        <div class="d-flex justify-content-between">
+          <div class="d-flex flex-row align-items-center">
+            <p class="small mb-0 ms-2">{{comment.user}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="form-outline mb-4">
+        {% if user.is_authenticated %}
+      <form action="{% url 'add_comment' item.pk %}" method="post">
+        {% csrf_token %}
+        <textarea name="text" class="form-control m-2" rows="3" placeholder="Type comment..."></textarea>
+        <input type="submit" class="btn btn-primary btn-sm ml-3" value="Add comment">
+      </form>
+        {% else %}
+        <li>You have to be logged in to comment</li>
+        {% endif %}
+    </div>
+    </div>
+
+  </div>
+{% endblock %}
